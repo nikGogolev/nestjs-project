@@ -48,19 +48,41 @@ export class NewsService {
   createComment(newsId: number, createCommentDto: CreateCommentDto) {
     const news: News = this.findOne(newsId);
     const newsIndex = this.news.findIndex((news) => news.id === newsId);
+    const commentId = createCommentDto.commentId;
 
     if (!news) {
       throw new NotFoundException();
     }
+    if (commentId) {
+      const newsCommentIndex = this.news[newsIndex].comments.findIndex(
+        (comment) => comment.id === commentId,
+      );
 
+      if (newsCommentIndex === -1) {
+        throw new NotFoundException();
+      }
+
+      const commentForComment: Comment = {
+        id: news.comments[newsCommentIndex].comments.length + 1,
+        author: 'Nadi',
+        text: createCommentDto.text,
+        date: new Date(),
+      };
+
+      this.news[newsIndex].comments[newsCommentIndex].comments.push(
+        commentForComment,
+      );
+
+      return `This action adds a new comment for #${commentId} comment`;
+    }
     const comment: Comment = {
       id: news.comments.length + 1,
       author: 'Nadi',
       text: createCommentDto.text,
       date: new Date(),
+      comments: [],
     };
     this.news[newsIndex].comments.push(comment);
-    return 'This action adds a new comment';
   }
 
   findAll() {
@@ -94,8 +116,11 @@ export class NewsService {
     return `This action updates a #${id} news`;
   }
 
-  updateComment(newsId: number, updateCommentDto: UpdateCommentDto) {
-    const commentId = updateCommentDto.commentId;
+  updateComment(
+    newsId: number,
+    commentId: number,
+    updateCommentDto: UpdateCommentDto,
+  ) {
     const newsIndex: number = this.news.findIndex((news) => news.id === newsId);
 
     if (newsIndex === -1) {
@@ -111,6 +136,42 @@ export class NewsService {
         error_msg: 'Comment not found',
       });
     }
+
+    const commentForCommentId = updateCommentDto.commentId;
+
+    if (updateCommentDto.commentId) {
+      const commentForCommentIndexToUpdate: number = this.news[
+        newsIndex
+      ].comments[commentIndexToUpdate].comments.findIndex(
+        (comment) => comment.id === commentForCommentId,
+      );
+
+      if (commentForCommentIndexToUpdate === -1) {
+        throw new NotFoundException({
+          error_msg: 'Comment not found',
+        });
+      }
+
+      const commentForCommentToUpdate: Comment =
+        this.news[newsIndex].comments[commentIndexToUpdate].comments[
+          commentForCommentIndexToUpdate
+        ];
+      const commentForComment: Comment = {
+        id: commentForCommentId,
+        text: updateCommentDto.text,
+        author: commentForCommentToUpdate.author,
+        date: new Date(),
+      };
+
+      this.news[newsIndex].comments[commentIndexToUpdate].comments.splice(
+        commentForCommentIndexToUpdate,
+        1,
+        commentForComment,
+      );
+
+      return `This action updates a comment #${commentId} of #${newsId} news`;
+    }
+
     const commentToUpdate: Comment =
       this.news[newsIndex].comments[commentIndexToUpdate];
     const comment: Comment = {
@@ -118,6 +179,7 @@ export class NewsService {
       text: updateCommentDto.text,
       author: commentToUpdate.author,
       date: new Date(),
+      comments: commentToUpdate.comments,
     };
 
     this.news[newsIndex].comments.splice(commentIndexToUpdate, 1, comment);

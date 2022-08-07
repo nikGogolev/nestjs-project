@@ -3,4 +3,5 @@ export class Comment {
   author: string;
   text: string;
   date: Date;
+  comments?: Comment[];
 }

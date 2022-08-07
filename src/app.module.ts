@@ -3,10 +3,18 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { NewsModule } from './news/news.module';
 import { CommentsModule } from './comments/comments.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessGuard } from './guards/access/access.guard';
 
 @Module({
   imports: [NewsModule, CommentsModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AccessGuard,
+    },
+  ],
 })
 export class AppModule {}
