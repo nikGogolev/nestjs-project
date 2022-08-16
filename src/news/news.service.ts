@@ -8,31 +8,8 @@ import { News } from './entities/news.entity';
 
 @Injectable()
 export class NewsService {
-  private news: News[] = [
-    {
-      title: 'Awesome',
-      description: 'Awesome news',
-      id: 1,
-      author: 'Nik',
-      date: new Date(),
-      comments: [
-        {
-          id: 1,
-          author: 'Nadi',
-          text: 'Wow, very awesome news',
-          date: new Date(),
-        },
-      ],
-    },
-    {
-      title: 'Awesome1',
-      description: 'Awesome news1',
-      id: 2,
-      author: 'Nik',
-      date: new Date(),
-      comments: [],
-    },
-  ];
+  private news: News[] = [];
+
   create(createNewsDto: CreateNewsDto) {
     const news: News = {
       ...createNewsDto,
@@ -42,13 +19,16 @@ export class NewsService {
       comments: [],
     };
     this.news.push(news);
+
     return 'This action adds a new news';
   }
 
   createComment(newsId: number, createCommentDto: CreateCommentDto) {
+    console.log(createCommentDto);
+
     const news: News = this.findOne(newsId);
     const newsIndex = this.news.findIndex((news) => news.id === newsId);
-    const commentId = createCommentDto.commentId;
+    const commentId = +createCommentDto.commentId;
 
     if (!news) {
       throw new NotFoundException();
@@ -67,6 +47,7 @@ export class NewsService {
         author: 'Nadi',
         text: createCommentDto.text,
         date: new Date(),
+        attachments: createCommentDto.attachments,
       };
 
       this.news[newsIndex].comments[newsCommentIndex].comments.push(
@@ -81,6 +62,7 @@ export class NewsService {
       text: createCommentDto.text,
       date: new Date(),
       comments: [],
+      attachments: createCommentDto.attachments,
     };
     this.news[newsIndex].comments.push(comment);
   }
@@ -109,6 +91,7 @@ export class NewsService {
       author: newsToUpdate.author,
       date: new Date(),
       comments: newsToUpdate.comments,
+      attachments: newsToUpdate.attachments,
     };
 
     this.news.splice(indexToUpdate, 1, news);
@@ -161,6 +144,7 @@ export class NewsService {
         text: updateCommentDto.text,
         author: commentForCommentToUpdate.author,
         date: new Date(),
+        attachments: commentForCommentToUpdate.attachments,
       };
 
       this.news[newsIndex].comments[commentIndexToUpdate].comments.splice(
@@ -180,6 +164,7 @@ export class NewsService {
       author: commentToUpdate.author,
       date: new Date(),
       comments: commentToUpdate.comments,
+      attachments: commentToUpdate.attachments,
     };
 
     this.news[newsIndex].comments.splice(commentIndexToUpdate, 1, comment);

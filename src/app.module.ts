@@ -5,9 +5,16 @@ import { NewsModule } from './news/news.module';
 import { CommentsModule } from './comments/comments.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessGuard } from './guards/access/access.guard';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
-  imports: [NewsModule, CommentsModule],
+  imports: [
+    NewsModule,
+    CommentsModule,
+    MulterModule.register({
+      dest: './upload',
+    }),
+  ],
   controllers: [AppController],
   providers: [
     AppService,

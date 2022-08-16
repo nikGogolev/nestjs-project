@@ -4,4 +4,5 @@ export class Comment {
   text: string;
   date: Date;
   comments?: Comment[];
+  attachments?: string[];
 }

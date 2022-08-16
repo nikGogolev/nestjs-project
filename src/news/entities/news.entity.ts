@@ -6,5 +6,6 @@ export class News {
   title: string;
   description: string;
   date: Date;
+  attachments: string[];
   comments?: Comment[];
 }

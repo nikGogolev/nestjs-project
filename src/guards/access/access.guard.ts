@@ -9,15 +9,10 @@ export class AccessGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    if (this.reflector.get('role', context.getHandler()) === 'public') {
+    if (this.reflector.get('role', context.getHandler()) === 'admin') {
       return true;
     }
-    if (this.reflector.get('role', context.getHandler()) === 'admin') {
-      if (this.reflector.get('authorized', context.getHandler()) === true) {
-        return true;
-      }
-    }
 
-    return false;
+    return true;
   }
 }
