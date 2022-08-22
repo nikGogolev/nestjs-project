@@ -20,7 +20,7 @@ export class NewsService {
     };
     this.news.push(news);
 
-    return 'This action adds a new news';
+    return news;
   }
 
   createComment(newsId: number, createCommentDto: CreateCommentDto) {
@@ -81,22 +81,22 @@ export class NewsService {
 
   update(id: number, updateNewsDto: UpdateNewsDto) {
     const indexToUpdate: number = this.news.findIndex((news) => news.id === id);
-    const newsToUpdate: News = this.news.find((news) => news.id === id);
-    if (!newsToUpdate) {
+    const oldNews: News = this.news.find((news) => news.id === id);
+    if (!oldNews) {
       throw new NotFoundException({ error_msg: 'News not found' });
     }
-    const news: News = {
+    const newNews: News = {
       ...updateNewsDto,
       id: id,
-      author: newsToUpdate.author,
+      author: oldNews.author,
       date: new Date(),
-      comments: newsToUpdate.comments,
-      attachments: newsToUpdate.attachments,
+      comments: oldNews.comments,
+      attachments: oldNews.attachments,
     };
 
-    this.news.splice(indexToUpdate, 1, news);
+    this.news.splice(indexToUpdate, 1, newNews);
 
-    return `This action updates a #${id} news`;
+    return { oldNews, newNews };
   }
 
   updateComment(

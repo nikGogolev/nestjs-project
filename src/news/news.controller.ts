@@ -8,6 +8,7 @@ import {
   Delete,
   UseInterceptors,
   UploadedFiles,
+  Render,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -20,17 +21,21 @@ import { Express } from 'express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { imageFilter } from 'src/helpers/imageFilter';
+import { MailService } from 'src/mail/mail.service';
 
 @Controller('news')
 export class NewsController {
-  constructor(private readonly newsService: NewsService) {}
+  constructor(
+    private readonly newsService: NewsService,
+    private readonly mailService: MailService,
+  ) {}
 
   @Post()
   @Admin()
   @UseInterceptors(
     FilesInterceptor('file', 10, {
       storage: diskStorage({
-        destination: './upoads/thumbnails',
+        destination: './public/thumbnails',
         filename: (req, file, cb) => {
           const randomName = Array(32)
             .fill(null)
@@ -42,17 +47,21 @@ export class NewsController {
       fileFilter: imageFilter,
     }),
   )
-  create(
+  async create(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() createNewsDto: CreateNewsDto,
   ) {
-    return this.newsService.create({
+    const news = await this.newsService.create({
       ...createNewsDto,
-      attachments: files.reduce(
+      attachments: files?.reduce(
         (prev, curr) => prev.concat(`thumbnails/${curr.filename}`),
         [],
       ),
     });
+
+    await this.mailService.sendNewNewsForAdmins(['nv_gogolev@mail.ru'], news);
+
+    return news;
   }
 
   @Post(':id/comment')
@@ -78,7 +87,7 @@ export class NewsController {
   ) {
     return this.newsService.createComment(+id, {
       ...createCommentDto,
-      attachments: files.reduce(
+      attachments: files?.reduce(
         (prev, curr) => prev.concat(`thumbnails/${curr.filename}`),
         [],
       ),
@@ -86,18 +95,31 @@ export class NewsController {
   }
 
   @Get()
+  @Render('news-list')
   findAll() {
-    return this.newsService.findAll();
+    return { news: this.newsService.findAll() };
   }
 
   @Get(':id')
+  @Render('news-page')
   findOne(@Param('id') id: string) {
-    return this.newsService.findOne(+id);
+    return { news: this.newsService.findOne(+id) };
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateNewsDto: UpdateNewsDto) {
-    return this.newsService.update(+id, updateNewsDto);
+  async update(@Param('id') id: string, @Body() updateNewsDto: UpdateNewsDto) {
+    const { oldNews, newNews } = await this.newsService.update(
+      +id,
+      updateNewsDto,
+    );
+
+    await this.mailService.sendUpdatedNewsForAdmins(
+      ['nv_gogolev@mail.ru'],
+      oldNews,
+      newNews,
+    );
+
+    return newNews;
   }
 
   @Patch(':newsId/comment/:commentId')
