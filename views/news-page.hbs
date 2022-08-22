@@ -1,0 +1,55 @@
+{{#if news}}
+  <div class='row'>
+      <div class='col-lg-6'>
+        <div class='card'>
+          {{#if news.attachments}}
+          {{#each news.attachments}}
+          <img
+            src='http://localhost:3000/{{this}}'
+            class='card-img-top'
+            style='height: 200px; object-fit: cover; margin: 10px'
+            alt='thumbnail'
+          />
+          {{/each}}
+          {{/if}}
+          <div class='card-body'>
+            <h5 class='card-title'>{{news.title}}</h5>
+            <h6 class='card-subtitle mb-2 text-muted'>
+              Автор:
+              {{news.author}}
+            </h6>
+            <h6 class='card-subtitle mb-2 text-muted'>
+              Дата создания:
+              {{news.date}}
+            </h6>
+            <p class='card-text'>{{news.description}}</p>
+            <a href='/news'><<< Назад</a>
+          </div>
+        </div>
+      </div>
+  </div>
+  {{#if news.comments}}
+  <h3>Комментарии</h3>
+  {{#each news.comments}}
+  
+  <div class='card-body'>
+    <h6 class='card-subtitle mb-2 text-muted'>
+      Автор:
+      {{this.author}}
+    </h6>
+    <h6 class='card-subtitle mb-2 text-muted'>
+      Дата создания:
+      {{this.date}}
+    </h6>
+    <p class='card-text'>{{this.text}}</p>
+  </div>
+  {{/each}}
+  {{/if}}
+  <form action="http://localhost:3000/news/{{news.id}}/comment" method="post">
+  <input type="text" name="text">
+  <input type="text" name="author">
+  <input type="submit" value="Send">
+  </form>
+{{else}}
+  <h1>Список новостей пуст!</h1>
+{{/if}}

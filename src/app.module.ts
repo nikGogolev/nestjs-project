@@ -6,10 +6,12 @@ import { CommentsModule } from './comments/comments.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AccessGuard } from './guards/access/access.guard';
 import { MulterModule } from '@nestjs/platform-express';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
     NewsModule,
+    MailModule,
     CommentsModule,
     MulterModule.register({
       dest: './upload',

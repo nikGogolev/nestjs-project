@@ -1,0 +1,35 @@
+{{#if news}}
+  <div class='row'>
+    {{#each news}}
+      <div class='col-lg-6'>
+        <div class='card'>
+          {{#if this.attachments}}
+          {{#each this.attachments}}
+          <img
+            src='http://localhost:3000/{{this}}'
+            class='card-img-top'
+            style='height: 200px; object-fit: cover; margin: 10px'
+            alt='thumbnail'
+          />
+          {{/each}}
+          {{/if}}
+          <div class='card-body'>
+            <h5 class='card-title'>{{this.title}}</h5>
+            <h6 class='card-subtitle mb-2 text-muted'>
+              Автор:
+              {{this.author}}
+            </h6>
+            <h6 class='card-subtitle mb-2 text-muted'>
+              Дата создания:
+              {{this.date}}
+            </h6>
+            <p class='card-text'>{{this.description}}</p>
+            <a href=news/{{this.id}}>Перейти >>></a>
+          </div>
+        </div>
+      </div>
+    {{/each}}
+  </div>
+{{else}}
+  <h1>Список новостей пуст!</h1>
+{{/if}}
